@@ -6,45 +6,18 @@ class Controller {
     getAll = async (req, res) => {
         try {
             const data = await this.service.getAll()
-            res.status(200).send({ message: data })
+            res.status(200).json(data)
         } catch (error) {
-            res.status(400).send({ message: error.message })
+            res.status(500).json({ errorMsg: error.message })
         }
     }
 
-    getById = async (req, res) => {
+    registrarLectura = async (req, res) => {
         try {
-            const data = await this.service.getById(req.params.id)
-            res.status(200).send({ message: data })
+            const data = await this.service.registrarLectura(req.body)
+            res.status(201).json(data)
         } catch (error) {
-            res.status(400).send({ message: error.message })
-        }
-    }
-
-    create = async (req, res) => {
-        try {
-            const data = await this.service.create(req.body)
-            res.status(201).send({ message: data })
-        } catch (error) {
-            res.status(400).send({ message: error.message })
-        }
-    }
-
-    update = async (req, res) => {
-        try {
-            const data = await this.service.update(req.params.id, req.body)
-            res.status(200).send({ message: data })
-        } catch (error) {
-            res.status(400).send({ message: error.message })
-        }
-    }
-
-    remove = async (req, res) => {
-        try {
-            const data = await this.service.remove(req.params.id)
-            res.status(200).send({ message: data })
-        } catch (error) {
-            res.status(400).send({ message: error.message })
+            res.status(400).json({ errorMsg: error.message })
         }
     }
 }

@@ -1,56 +1,58 @@
+import Alerta from "../models/alerta.js"
+import Lectura from "../models/lectura.js"
+import Sensor from "../models/sensor.js"
+
 class Service {
-    data = []
-    nextId = 1
+    constructor(sensoresDao) {
+        this.sensoresDao = sensoresDao
+    }
 
     getAll = async () => {
-        return this.data
+        return this.sensoresDao.getAll()
     }
 
-    getById = async (id) => {
-        const item = this.data.find(item => item.id === Number(id))
+    registrarLectura = async (datos) => {
+        const lectura = new Lectura(
+            datos.id,
+            datos.tipo,
+            datos.valor,
+            datos.timestamp
+        )
 
-        if (!item) {
-            throw new Error("Elemento no encontrado")
-        }
+        const sensor = new Sensor(
+            lectura.id,
+            lectura.tipo,
+            lectura.valor,
+            lectura.timestamp
+        )
 
-        return item
+        await this.sensoresDao.save(sensor)
+
+        const mensajeAlerta = this.generarAlerta(lectura)
+
+        return new Alerta(
+            lectura.id,
+            lectura.tipo,
+            lectura.valor,
+            lectura.timestamp,
+            mensajeAlerta
+        )
     }
 
-    create = async (item) => {
-        const newItem = {
-            ...item,
-            id: this.nextId++
+    generarAlerta = (lectura) => {
+        if (lectura.tipo === "TEMPERATURA" && lectura.valor > 35) {
+            return "TEMPERATURA alta"
         }
 
-        this.data.push(newItem)
-        return newItem
-    }
-
-    update = async (id, changes) => {
-        const index = this.data.findIndex(item => item.id === Number(id))
-
-        if (index === -1) {
-            throw new Error("Elemento no encontrado")
+        if (lectura.tipo === "HUMEDAD" && lectura.valor < 20) {
+            return "HUMEDAD baja"
         }
 
-        this.data[index] = {
-            ...this.data[index],
-            ...changes,
-            id: Number(id)
+        if (lectura.tipo === "CO2" && lectura.valor > 1000) {
+            return "CO2 alto"
         }
 
-        return this.data[index]
-    }
-
-    remove = async (id) => {
-        const index = this.data.findIndex(item => item.id === Number(id))
-
-        if (index === -1) {
-            throw new Error("Elemento no encontrado")
-        }
-
-        const [deletedItem] = this.data.splice(index, 1)
-        return deletedItem
+        return null
     }
 }
 
