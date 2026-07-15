@@ -11,6 +11,15 @@ class Controller {
             res.status(500).json({ errorMsg: error.message })
         }
     }
+
+    registrarLectura = async (req, res) => {
+        try {
+            const data = await this.service.registrarLectura(req.body)
+            res.status(201).json(data)
+        } catch (error) {
+            res.status(400).json({ errorMsg: error.message })
+        }
+    }
 }
 
 export default Controller
